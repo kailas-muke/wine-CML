@@ -14,23 +14,18 @@ jobs:
       # - uses: actions/setup-python@v2
       #   with:
       #     python-version: '3.x'
-      - name: cml_run
-        env:
-            REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: iterative/setup-cml@v1
+      - name: Train model
         run: |
-        
           # Your ML workflow goes here
           pip install -r requirements.txt
           python train.py
-          
-          echo "## MODEL METRICS" > report.md
-          cat metrics.txt >> report.md
-          
-          echo "## Data Viz" >> report.md
-          cml-publish feature_importance.png --md >> report.md
-          
-          cml-publish residuals.png --md >> report.md
-          
+      - name: Write CML report
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Post reports as comments in GitHub PRs
+          cat results.txt >> report.md
           cml-send-comment report.md
-          
+
 
